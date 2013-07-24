@@ -1,13 +1,21 @@
 
-NodeList.prototype.map = [].map;
-Array.prototype.contains = function(item) { return this.indexOf(item) != -1; };
+/**
+ * To do:
+ * [ ] Use overlay with ClientRect & z-index instead of outline
+ * [ ] Selector selection per class, instead of all or none
+ * [ ] Remove selection in teardown()
+ * [ ] ? No-cache/random js/css loading in bookmarklet
+ * [ ] ? Another test page
+ */
+
+NodeList.prototype._map = [].map;
+Array.prototype._has = function(item) { return this.indexOf(item) != -1; };
 
 select0r = {
 	HTML_HILITING: 'select0r-hiliting',
 	HTML_SELECTING: 'select0r-selecting',
 	ITEM_CLASS: 'select0r-hilited-item',
 
-	// hiliting: false,
 	target: null,
 	inc: 1,
 	$select0r: null,
@@ -18,11 +26,11 @@ select0r = {
 	subselector: function(sel, types) {
 		types.length || types.push('tag');
 
-		return ( types.contains('tag') ? sel.tag : '' ) + ( types.contains('id') ? sel.id : '' ) + ( types.contains('classes') ? sel.classes : '' );
+		return ( types._has('tag') ? sel.tag : '' ) + ( types._has('id') ? sel.id : '' ) + ( types._has('classes') ? sel.classes : '' );
 	},
 	enabledTypes: function(type) {
 		var sel = type ? '.select0r-' + type + ' ul :checked' : '.select0r-selectors > li > :checked';
-		return select0r.$selectors.querySelectorAll(sel).map(function(type) {
+		return select0r.$selectors.querySelectorAll(sel)._map(function(type) {
 			return type.value;
 		});
 	},
@@ -33,13 +41,13 @@ select0r = {
 			type2s,
 			selector = '';
 
-		if ( types.contains('parent') && el.parentElement ) {
+		if ( types._has('parent') && el.parentElement ) {
 			sel = select0r.selector(el.parentElement);
 			type2s = select0r.enabledTypes('parent');
 			selector += select0r.subselector(sel, type2s) + ' > ';
 		}
 
-		if ( types.contains('previous') && el.previousElementSibling ) {
+		if ( types._has('previous') && el.previousElementSibling ) {
 			sel = select0r.selector(el.previousElementSibling);
 			type2s = select0r.enabledTypes('previous');
 			selector += select0r.subselector(sel, type2s) + ' + ';
@@ -53,12 +61,6 @@ select0r = {
 		select0r.$selectors.dataset.matches = document.querySelectorAll(selector).length;
 		select0r.$select0r.scrollTop = 9999;
 	},
-	/**
-	clickSelector: function(e) {
-		var sel = this.dataset.select0r;
-		alert(sel + '\n\nAnd now what?');
-	},
-	/**/
 	clickAncestor: function(e) {
 		select0r.$ancestors.querySelector('.select0r-active').classList.remove('select0r-active');
 		this.classList.add('select0r-active');
@@ -97,13 +99,6 @@ select0r = {
 			}
 			html += '</li>';
 		}
-
-		// var selectors = select0r.selectors(el),
-			// html = '';
-		// selectors.forEach(function(sel, i) {
-			// var num = document.querySelectorAll(sel).length;
-			// html += '<li class="select0r-selector" data-select0r="' + sel + '">' + '[' + num + '] ' + sel + '</li>';
-		// });
 
 		ul.innerHTML = html;
 
@@ -153,46 +148,6 @@ select0r = {
 
 		return sel;
 	},
-	/**
-	selectors: function(el) {
-		select0r.unhilite();
-		var id = el.id,
-			classes = [].join.call(el.classList, '.'),
-			prev = el.previousElementSibling || false,
-			prevClasses = prev ? [].join.call(prev.classList, '.') : '',
-			first = !prev,
-			last = !el.nextElementSibling,
-			list = [];
-
-		// [id]
-		id && list.push('#' + id);
-		// [id] + first
-		id && first && list.push('#' + id + ':first-child');
-		// [id] + last
-		id && last && list.push('#' + id + ':last-child');
-		// [class]
-		classes && list.push('.' + classes);
-		// [class] + first
-		classes && first && list.push('.' + classes + ':first-child');
-		// [class] + last
-		classes && last && list.push('.' + classes + ':last-child');
-
-		// prev[id] + [id]
-		id && prev.id && list.push('#' + prev.id + ' + ' + '#' + id);
-		// prev[class] + [id]
-		id && prevClasses && list.push('.' + prevClasses + ' + ' + '#' + id);
-
-		// prev[id] + [class]
-		classes && prev.id && list.push('#' + prev.id + ' + ' + '.' + classes);
-		// prev[class] + [class]
-		classes && prevClasses && list.push('.' + prevClasses + ' + ' + '.' + classes);
-
-		// Do something with parent [id] and/or [class] as well...
-
-		select0r.hilite(el);
-		return list;
-	},
-	/**/
 	ancestors: function(el) {
 		var list = [el];
 		while ( el.parentElement && el.parentElement != document.body ) {
@@ -240,11 +195,6 @@ select0r = {
 			if ( e.target.classList.contains('select0r-ancestor') ) {
 				select0r.clickAncestor.call(e.target, e);
 			}
-			/**
-			else if ( e.target.classList.contains('select0r-selector') ) {
-				select0r.clickSelector.call(e.target, e);
-			}
-			/**/
 		}, true);
 
 		div.addEventListener('mouseover', function(e) {
@@ -301,7 +251,6 @@ select0r = {
 	start: function() {
 		select0r.$select0r || select0r.build();
 
-		// select0r.hiliting = true;
 		document.documentElement.classList.add(select0r.HTML_HILITING);
 
 		document.addEventListener('mouseover', select0r.hiliter, false);
@@ -309,9 +258,7 @@ select0r = {
 		document.addEventListener('click', select0r.clicker, false);
 	},
 	end: function() {
-		// select0r.unhilite();
 		document.documentElement.classList.remove(select0r.HTML_HILITING);
-		// select0r.hiliting = false;
 
 		document.removeEventListener('mouseover', select0r.hiliter, false);
 		document.removeEventListener('mousedown', select0r.clicker, false);
