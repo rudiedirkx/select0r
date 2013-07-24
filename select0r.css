@@ -1,0 +1,75 @@
+
+.select0r-hilited-item {
+	outline: solid 9999px rgba(0, 0, 0, 0.4) !important;
+}
+
+#select0r {
+	direction: rtl;
+	max-height: 100%;
+	overflow-y: auto;
+
+	position: fixed;
+	top: 0;
+	right: 0;
+	text-align: left;
+	background: #000;
+	color: #FFF;
+	max-width: 300px;
+	padding: 10px;
+	z-index: 2345678;
+}
+html:not(.select0r-selecting) #select0r {
+	display: none;
+}
+#select0r .close {
+	position: absolute;
+	top: 0;
+	right: 0;
+	width: 30px;
+	height: 30px;
+	background: #666;
+	border-radius: 0 0 0 20px;
+	text-align: center;
+	line-height: 30px;
+	box-shadow: 0 0 10px black;
+	cursor: pointer;
+}
+#select0r ul,
+#select0r li {
+	display: block;
+	margin: 0;
+	padding: 0;
+	line-height: 1.1;
+}
+#select0r ul {
+	direction: ltr;
+}
+#select0r ul + ul {
+	margin-top: 20px;
+}
+#select0r li:hover,
+#select0r li.active {
+	cursor: pointer;
+	background: rgba(255, 255, 255, 0.2);
+}
+#select0r li + li {
+	margin-top: 10px;
+}
+
+#select0r ul::before {
+	content: 'ancestors:';
+	display: block;
+	background: white;
+	color: black;
+	padding: 5px;
+	margin-bottom: 10px;
+	text-transform: uppercase;
+}
+#select0r ul.selectors::before {
+	content: 'selectors:';
+}
+
+#select0r li.active::before {
+	content: '> ';
+}
+
