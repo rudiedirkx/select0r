@@ -195,7 +195,7 @@ select0r = {
 	/**/
 	ancestors: function(el) {
 		var list = [el];
-		while ( el.parentElement ) {
+		while ( el.parentElement && el.parentElement != document.body ) {
 			list.push(el = el.parentElement);
 		}
 		return list.reverse();
