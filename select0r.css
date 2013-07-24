@@ -70,7 +70,7 @@ html:not(.select0r-selecting) #select0r {
 	text-transform: uppercase;
 }
 #select0r > ul.select0r-selectors::before {
-	content: 'selectors:';
+	content: 'selectors (' attr(data-matches) '):';
 }
 
 #select0r li.select0r-active::before {

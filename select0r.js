@@ -50,7 +50,7 @@ select0r = {
 		selector += select0r.subselector(sel, type2s);
 
 		select0r.$selector.value = select0r.$selector.textContent = selector;
-
+		select0r.$selectors.dataset.matches = document.querySelectorAll(selector).length;
 		select0r.$select0r.scrollTop = 9999;
 	},
 	/**
