@@ -1,4 +1,7 @@
 
+NodeList.prototype.map = [].map;
+Array.prototype.contains = function(item) { return this.indexOf(item) != -1; };
+
 select0r = {
 	HTML_HILITING: 'select0r-hiliting',
 	HTML_SELECTING: 'select0r-selecting',
@@ -10,26 +13,101 @@ select0r = {
 	$select0r: null,
 	$ancestors: null,
 	$selectors: null,
+	$selector: null,
 
+	subselector: function(sel, types) {
+		types.length || types.push('tag');
+
+		return ( types.contains('tag') ? sel.tag : '' ) + ( types.contains('id') ? sel.id : '' ) + ( types.contains('classes') ? sel.classes : '' );
+	},
+	enabledTypes: function(type) {
+		var sel = type ? '.select0r-' + type + ' ul :checked' : '.select0r-selectors > li > :checked';
+		return select0r.$selectors.querySelectorAll(sel).map(function(type) {
+			return type.value;
+		});
+	},
+	changeSelector: function(e) {
+		var el = select0r.target,
+			types = select0r.enabledTypes(),
+			sel,
+			type2s,
+			selector = '';
+
+		if ( types.contains('parent') && el.parentElement ) {
+			sel = select0r.selector(el.parentElement);
+			type2s = select0r.enabledTypes('parent');
+			selector += select0r.subselector(sel, type2s) + ' > ';
+		}
+
+		if ( types.contains('previous') && el.previousElementSibling ) {
+			sel = select0r.selector(el.previousElementSibling);
+			type2s = select0r.enabledTypes('previous');
+			selector += select0r.subselector(sel, type2s) + ' + ';
+		}
+
+		sel = select0r.selector(el);
+		type2s = select0r.enabledTypes('self');
+		selector += select0r.subselector(sel, type2s);
+
+		select0r.$selector.value = select0r.$selector.textContent = selector;
+
+		select0r.$select0r.scrollTop = 9999;
+	},
+	/**
 	clickSelector: function(e) {
 		var sel = this.dataset.select0r;
 		alert(sel + '\n\nAnd now what?');
 	},
+	/**/
 	clickAncestor: function(e) {
-		select0r.$ancestors.querySelector('.active').classList.remove('active');
-		this.classList.add('active');
+		select0r.$ancestors.querySelector('.select0r-active').classList.remove('select0r-active');
+		this.classList.add('select0r-active');
 
 		var el = document.querySelector('[data-select0r-id="' + this.dataset.select0r + '"]'),
 			ul = select0r.$selectors;
 		select0r.target = el;
 
-		var selectors = select0r.selectors(el),
-			html = '';
-		selectors.forEach(function(sel, i) {
-			var num = document.querySelectorAll(sel).length;
-			html += '<li class="selector" data-select0r="' + sel + '">' + '[' + num + '] ' + sel + '</li>';
-		});
+		var sels = {
+			parent: el.parentElement && select0r.selector(el.parentElement),
+			previous: el.previousElementSibling && select0r.selector(el.previousElementSibling),
+			self: select0r.selector(el)
+		};
+
+		var html = '';
+		for ( var type in sels ) {
+			var sel = sels[type];
+
+			if ( sel ) {
+				var checked = type == 'self' ? ' checked' : '',
+					disabled = type == 'self' ? ' disabled' : '';
+
+				html += '<li class="select0r-' + type + '">';
+				html += '<input id="select0r-tmp-' + type + '" type=checkbox value="' + type + '" ' + checked + disabled + '><label for="select0r-tmp-' + type + '"> ' + type + '</label>';
+				html += '<ul>';
+				var preferred2 = select0r.preferredSelector(sel);
+				for ( var type2 in sel ) {
+					var sel2 = sel[type2];
+
+					if ( sel2 ) {
+						var checked2 = type2 == preferred2 ? 'checked' : '';
+						html += '<li class="select0r-' + type2 + '"><input id="select0r-tmp-' + type + '-' + type2 + '" type=checkbox value="' + type2 + '" ' + checked2 + '><label for="select0r-tmp-' + type + '-' + type2 + '"> ' + sel2 + '</label></li>';
+					}
+				}
+				html += '</ul>';
+			}
+			html += '</li>';
+		}
+
+		// var selectors = select0r.selectors(el),
+			// html = '';
+		// selectors.forEach(function(sel, i) {
+			// var num = document.querySelectorAll(sel).length;
+			// html += '<li class="select0r-selector" data-select0r="' + sel + '">' + '[' + num + '] ' + sel + '</li>';
+		// });
+
 		ul.innerHTML = html;
+
+		select0r.changeSelector({});
 	},
 	hoverAncestor: function(e) {
 		var el = document.querySelector('[data-select0r-id="' + this.dataset.select0r + '"]');
@@ -49,10 +127,10 @@ select0r = {
 		var ancestors = select0r.ancestors(el),
 			html = '';
 		ancestors.forEach(function(anc, i) {
-			var active = i == ancestors.length-1 ? 'active' : '',
+			var active = i == ancestors.length-1 ? 'select0r-active' : '',
 				rid = select0r.inc++;
 			anc.dataset.select0rId = rid;
-			html += '<li class="ancestor ' + active + '" data-select0r="' + rid + '">' + select0r.el(anc) + '</li>';
+			html += '<li class="select0r-ancestor ' + active + '" data-select0r="' + rid + '">' + select0r.el(anc) + '</li>';
 		});
 		ul.innerHTML = html;
 
@@ -60,6 +138,22 @@ select0r = {
 
 		select0r.hilite(el);
 	},
+	preferredSelector: function(sel) {
+		return sel.id ? 'id' : sel.classes ? 'classes' : 'tag';
+	},
+	selector: function(el) {
+		var sel = {};
+		sel.tag = el.nodeName.toLowerCase();
+		sel.id = el.id ? '#' + el.id : false;
+
+		var cn = el.className;
+		el.classList.remove(select0r.ITEM_CLASS);
+		sel.classes = el.classList.length ? '.' + [].join.call(el.classList, '.') : false;
+		el.className = cn;
+
+		return sel;
+	},
+	/**
 	selectors: function(el) {
 		select0r.unhilite();
 		var id = el.id,
@@ -98,10 +192,11 @@ select0r = {
 		select0r.hilite(el);
 		return list;
 	},
+	/**/
 	ancestors: function(el) {
 		var list = [el];
-		while ( el.parentNode && el.parentNode != document ) {
-			list.push(el = el.parentNode);
+		while ( el.parentElement ) {
+			list.push(el = el.parentElement);
 		}
 		return list.reverse();
 	},
@@ -142,16 +237,18 @@ select0r = {
 		div.id = 'select0r';
 
 		div.addEventListener('click', function(e) {
-			if ( e.target.classList.contains('ancestor') ) {
+			if ( e.target.classList.contains('select0r-ancestor') ) {
 				select0r.clickAncestor.call(e.target, e);
 			}
-			else if ( e.target.classList.contains('selector') ) {
+			/**
+			else if ( e.target.classList.contains('select0r-selector') ) {
 				select0r.clickSelector.call(e.target, e);
 			}
+			/**/
 		}, true);
 
 		div.addEventListener('mouseover', function(e) {
-			if ( e.target.classList.contains('ancestor') ) {
+			if ( e.target.classList.contains('select0r-ancestor') ) {
 				select0r.hoverAncestor.call(e.target, e);
 			}
 		}, true);
@@ -160,22 +257,40 @@ select0r = {
 			select0r.unhoverAncestor.call(e.target, e);
 		}, true);
 
+
 		var close = document.createElement('span');
 		close.textContent = 'x';
-		close.className = 'close';
+		close.className = 'select0r-close';
 		div.appendChild(close);
 
 		close.addEventListener('click', function(e) {
 			select0r.teardown();
 		});
 
+
 		var ul = document.createElement('ul');
 		div.appendChild(select0r.$ancestors = ul);
-		ul.className = 'ancestors';
+		ul.className = 'select0r-ancestors';
+
 
 		var ul = document.createElement('ul');
 		div.appendChild(select0r.$selectors = ul);
-		ul.className = 'selectors';
+		ul.className = 'select0r-selectors';
+
+		div.addEventListener('change', function(e) {
+			select0r.changeSelector.call(e.target, e);
+		}, true);
+
+
+		var result = document.createElement('pre');
+		div.appendChild(select0r.$selector = result);
+		result.className = 'select0r-selector';
+
+		result.addEventListener('dblclick', function(e) {
+			setTimeout(function() {
+				select0r.$selector.select && select0r.$selector.select();
+			}, 1);
+		}, true);
 
 		document.body.appendChild(div);
 	},

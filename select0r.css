@@ -1,6 +1,8 @@
 
 .select0r-hilited-item {
 	outline: solid 9999px rgba(0, 0, 0, 0.4) !important;
+	z-index: 2345677;
+	position: relative;
 }
 
 #select0r {
@@ -17,11 +19,13 @@
 	max-width: 300px;
 	padding: 10px;
 	z-index: 2345678;
+	box-shadow: 0 0 50px 10px #000;
+	box-sizing: border-box;
 }
 html:not(.select0r-selecting) #select0r {
 	display: none;
 }
-#select0r .close {
+#select0r .select0r-close {
 	position: absolute;
 	top: 0;
 	right: 0;
@@ -41,22 +45,22 @@ html:not(.select0r-selecting) #select0r {
 	padding: 0;
 	line-height: 1.1;
 }
-#select0r ul {
+#select0r > * {
 	direction: ltr;
 }
-#select0r ul + ul {
+#select0r > ul + ul {
 	margin-top: 20px;
 }
-#select0r li:hover,
-#select0r li.active {
+#select0r .select0r-ancestors li:hover,
+#select0r .select0r-ancestors li.select0r-active {
 	cursor: pointer;
 	background: rgba(255, 255, 255, 0.2);
 }
-#select0r li + li {
+#select0r .select0r-ancestors li + li {
 	margin-top: 10px;
 }
 
-#select0r ul::before {
+#select0r > ul::before {
 	content: 'ancestors:';
 	display: block;
 	background: white;
@@ -65,11 +69,41 @@ html:not(.select0r-selecting) #select0r {
 	margin-bottom: 10px;
 	text-transform: uppercase;
 }
-#select0r ul.selectors::before {
+#select0r > ul.select0r-selectors::before {
 	content: 'selectors:';
 }
 
-#select0r li.active::before {
+#select0r li.select0r-active::before {
 	content: '> ';
 }
 
+#select0r .select0r-selectors label {
+	padding-right: 10px;
+}
+#select0r li.select0r-parent > label::after {
+	content: ' >';
+}
+#select0r li.select0r-previous > label::after {
+	content: ' +';
+}
+
+#select0r ul ul {
+	padding-left: 20px;
+}
+#select0r input:enabled:not(:checked) ~ ul {
+	display: none;
+}
+
+#select0r > .select0r-selector {
+	padding: 10px;
+	background: #ccc;
+	color: black;
+	margin: 20px 0 0;
+	width: 100%;
+	box-sizing: border-box;
+	font-family: monospace;
+	white-space: pre-wrap;
+	font-size: 20px;
+	line-height: 1.2;
+	font-weight: bold;
+}
