@@ -2,8 +2,8 @@
 /**
  * To do:
  * [x] Use overlay with ClientRect & z-index instead of outline
- * [ ] Selector selection per class, instead of all or none
- * [ ] Remove selection in teardown()
+ * [x] Selector selection per class, instead of all or none
+ * [x] Remove selection in teardown()
  * [ ] ? No-cache/random js/css loading in bookmarklet
  * [ ] ? Another test page
  */
@@ -14,7 +14,6 @@ Array.prototype._has = function(item) { return this.indexOf(item) != -1; };
 select0r = {
 	HTML_HILITING: 'select0r-hiliting',
 	HTML_SELECTING: 'select0r-selecting',
-	// ITEM_CLASS: 'select0r-hilited-item',
 	OVERLAY_ITEM_CLASS: 'select0r-overlay-item',
 
 	target: null,
@@ -26,9 +25,14 @@ select0r = {
 	$selector: null,
 
 	subselector: function(sel, types) {
-		types.length || types.push('tag');
+		types.length || types.push('tag:0');
 
-		return ( types._has('tag') ? sel.tag : '' ) + ( types._has('id') ? sel.id : '' ) + ( types._has('classes') ? sel.classes : '' );
+		var subsel = '';
+		types.forEach(function(t) {
+			t = t.split(':');
+			subsel += sel[ t[0] ][ t[1] ];
+		});
+		return subsel;
 	},
 	enabledTypes: function(type) {
 		var sel = type ? '.select0r-' + type + ' ul :checked' : '.select0r-selectors > li > :checked';
@@ -61,7 +65,6 @@ select0r = {
 
 		select0r.$selector.value = select0r.$selector.textContent = selector;
 		select0r.$selectors.dataset.matches = document.querySelectorAll(selector).length;
-		select0r.$select0r.scrollTop = 9999;
 	},
 	clickAncestor: function(e) {
 		select0r.$ancestors.querySelector('.select0r-active').classList.remove('select0r-active');
@@ -94,7 +97,9 @@ select0r = {
 
 					if ( sel2 ) {
 						var checked2 = type2 == preferred2 ? 'checked' : '';
-						html += '<li class="select0r-' + type2 + '"><input id="select0r-tmp-' + type + '-' + type2 + '" type=checkbox value="' + type2 + '" ' + checked2 + '><label for="select0r-tmp-' + type + '-' + type2 + '"> ' + sel2 + '</label></li>';
+						sel2.forEach(function(item, i) {
+							html += '<li class="select0r-' + type2 + '"><input id="select0r-tmp-' + type + '-' + type2 + '-' + i + '" type=checkbox value="' + type2 + ':' + i + '" ' + checked2 + '><label for="select0r-tmp-' + type + '-' + type2 + '-' + i + '"> ' + item + '</label></li>';
+						});
 					}
 				}
 				html += '</ul>';
@@ -140,13 +145,10 @@ select0r = {
 	},
 	selector: function(el) {
 		var sel = {};
-		sel.tag = el.nodeName.toLowerCase();
-		sel.id = el.id ? '#' + el.id : false;
+		sel.tag = [el.nodeName.toLowerCase()];
+		sel.id = el.id ? ['#' + el.id] : false;
 
-		// var cn = el.className;
-		// el.classList.remove(select0r.ITEM_CLASS);
-		sel.classes = el.classList.length ? '.' + [].join.call(el.classList, '.') : false;
-		// el.className = cn;
+		sel.classes = el.classList.length ? ('.' + [].join.call(el.classList, '#.')).split('#') : false;
 
 		return sel;
 	},
@@ -180,12 +182,9 @@ select0r = {
 		select0r.$overlay.style.top = (scrollY + rect.top + offset) + 'px';
 		select0r.$overlay.style.width = (rect.width - 2*offset) + 'px';
 		select0r.$overlay.style.height = (rect.height - 2*offset) + 'px';
-
-		// el.classList.add(select0r.ITEM_CLASS);
 	},
 	unhilite: function() {
-		// var old = document.querySelector('.' + select0r.ITEM_CLASS);
-		// old && old.classList.remove(select0r.ITEM_CLASS);
+		// Hide element?
 	},
 
 	hiliter: function(e) {

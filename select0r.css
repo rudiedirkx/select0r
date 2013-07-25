@@ -39,7 +39,7 @@ html:not(.select0r-selecting) #select0r {
 	display: none;
 }
 #select0r .select0r-close {
-	position: absolute;
+	position: fixed;
 	top: 0;
 	right: 0;
 	width: 30px;
