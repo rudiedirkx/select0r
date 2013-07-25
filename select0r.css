@@ -1,8 +1,21 @@
 
+/**
 .select0r-hilited-item {
 	outline: solid 9999px rgba(0, 0, 0, 0.4) !important;
 	z-index: 2345677;
 	position: relative;
+}
+/**/
+
+.select0r-overlay-item {
+	position: absolute;
+	z-index: 2345677;
+	outline: solid 9999px rgba(0, 0, 0, 0.4) !important;
+	x-background: rgba(255, 0, 0, 0.3);
+	pointer-events: none;
+}
+html:not(.select0r-hiliting):not(.select0r-selecting) .select0r-overlay-item {
+	display: none;
 }
 
 #select0r {

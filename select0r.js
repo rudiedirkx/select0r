@@ -1,7 +1,7 @@
 
 /**
  * To do:
- * [ ] Use overlay with ClientRect & z-index instead of outline
+ * [x] Use overlay with ClientRect & z-index instead of outline
  * [ ] Selector selection per class, instead of all or none
  * [ ] Remove selection in teardown()
  * [ ] ? No-cache/random js/css loading in bookmarklet
@@ -14,9 +14,11 @@ Array.prototype._has = function(item) { return this.indexOf(item) != -1; };
 select0r = {
 	HTML_HILITING: 'select0r-hiliting',
 	HTML_SELECTING: 'select0r-selecting',
-	ITEM_CLASS: 'select0r-hilited-item',
+	// ITEM_CLASS: 'select0r-hilited-item',
+	OVERLAY_ITEM_CLASS: 'select0r-overlay-item',
 
 	target: null,
+	$overlay: null,
 	inc: 1,
 	$select0r: null,
 	$ancestors: null,
@@ -141,10 +143,10 @@ select0r = {
 		sel.tag = el.nodeName.toLowerCase();
 		sel.id = el.id ? '#' + el.id : false;
 
-		var cn = el.className;
-		el.classList.remove(select0r.ITEM_CLASS);
+		// var cn = el.className;
+		// el.classList.remove(select0r.ITEM_CLASS);
 		sel.classes = el.classList.length ? '.' + [].join.call(el.classList, '.') : false;
-		el.className = cn;
+		// el.className = cn;
 
 		return sel;
 	},
@@ -162,12 +164,28 @@ select0r = {
 		return tag + ( id ? '#' + id : '' ) + ( classes ? '.' + classes : '' );
 	},
 
-	hilite: function(el) {
-		el.classList.add(select0r.ITEM_CLASS);
+	hilite: function(el, many) {
+		if ( !select0r.$overlay ) {
+			var div = document.createElement('div');
+			div.className = select0r.OVERLAY_ITEM_CLASS;
+			document.body.appendChild(select0r.$overlay = div);
+		}
+
+		var offset = many ? 1 : 0;
+
+		var rect = el.getBoundingClientRect(),
+			scrollX = document.body.scrollLeft || document.documentElement.scrollLeft,
+			scrollY = document.body.scrollTop || document.documentElement.scrollTop;
+		select0r.$overlay.style.left = (scrollX + rect.left + offset) + 'px';
+		select0r.$overlay.style.top = (scrollY + rect.top + offset) + 'px';
+		select0r.$overlay.style.width = (rect.width - 2*offset) + 'px';
+		select0r.$overlay.style.height = (rect.height - 2*offset) + 'px';
+
+		// el.classList.add(select0r.ITEM_CLASS);
 	},
 	unhilite: function() {
-		var old = document.querySelector('.' + select0r.ITEM_CLASS);
-		old && old.classList.remove(select0r.ITEM_CLASS);
+		// var old = document.querySelector('.' + select0r.ITEM_CLASS);
+		// old && old.classList.remove(select0r.ITEM_CLASS);
 	},
 
 	hiliter: function(e) {
