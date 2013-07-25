@@ -4,6 +4,7 @@
  * [x] Use overlay with ClientRect & z-index instead of outline
  * [x] Selector selection per class, instead of all or none
  * [x] Remove selection in teardown()
+ * [ ] ? Hilite all matches of current selection
  * [ ] ? No-cache/random js/css loading in bookmarklet
  * [ ] ? Another test page
  */
