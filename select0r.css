@@ -18,6 +18,10 @@ html:not(.select0r-hiliting):not(.select0r-selecting) .select0r-overlay-item {
 	display: none;
 }
 
+.select0r-tmp-hiliting {
+	outline: solid 3px fuchsia;
+}
+
 #select0r {
 	direction: rtl;
 	max-height: 100%;
@@ -92,6 +96,9 @@ html:not(.select0r-selecting) #select0r {
 
 #select0r .select0r-selectors label {
 	padding-right: 10px;
+	display: inline-block;
+	margin-left: .25em;
+	color: #FFF;
 }
 #select0r li.select0r-parent > label::after {
 	content: ' >';

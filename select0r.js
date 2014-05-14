@@ -16,6 +16,7 @@ select0r = {
 	HTML_HILITING: 'select0r-hiliting',
 	HTML_SELECTING: 'select0r-selecting',
 	OVERLAY_ITEM_CLASS: 'select0r-overlay-item',
+	ITEM_TMP_HILITING: 'select0r-tmp-hiliting',
 
 	target: null,
 	$overlay: null,
@@ -254,11 +255,25 @@ select0r = {
 		div.appendChild(select0r.$selector = result);
 		result.className = 'select0r-selector';
 
-		result.addEventListener('dblclick', function(e) {
-			setTimeout(function() {
-				select0r.$selector.select && select0r.$selector.select();
-			}, 1);
-		}, true);
+		// result.addEventListener('dblclick', function(e) {
+		// 	setTimeout(function() {
+		// 		select0r.$selector.select && select0r.$selector.select();
+		// 	}, 1);
+		// }, true);
+
+		result.addEventListener('mouseover', function(e) {
+			// hilite all elements according to current selector
+			var sel = select0r.$selector.value;
+			[].forEach.call(document.querySelectorAll(sel), function(el) {
+				el.classList.add(select0r.ITEM_TMP_HILITING);
+			});
+		});
+		result.addEventListener('mouseout', function() {
+			// unhilite all temporary elements
+			[].forEach.call(document.querySelectorAll('.' + select0r.ITEM_TMP_HILITING), function(el) {
+				el.classList.remove(select0r.ITEM_TMP_HILITING);
+			});
+		});
 
 		document.body.appendChild(div);
 	},
