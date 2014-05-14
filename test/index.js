@@ -8,7 +8,7 @@ window.onload = function(e) {
 
 		ajax('select0r.bookmarklet.js', function(e, js) {
 			if ( location.host != 'localhost' && location.host.indexOf('home.') != 0 ) {
-				js = js.replace(/\.\/select0r\./g, 'http://rawgithub.com/rudiedirkx/select0r/master/select0r.');
+				js = js.replace(/\.\/select0r\./g, 'https://rawgit.com/rudiedirkx/select0r/master/select0r.');
 			}
 			document.querySelector('#select0r-bookmarklet').href = js.trim();
 		});
