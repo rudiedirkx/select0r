@@ -9,7 +9,7 @@
 
 .select0r-overlay-item {
 	position: absolute;
-	z-index: 2345677;
+	z-index: 9992345677;
 	outline: solid 9999px rgba(0, 0, 0, 0.4) !important;
 	x-background: rgba(255, 0, 0, 0.3);
 	pointer-events: none;
@@ -35,7 +35,7 @@ html:not(.select0r-hiliting):not(.select0r-selecting) .select0r-overlay-item {
 	color: #FFF;
 	max-width: 300px;
 	padding: 10px;
-	z-index: 2345678;
+	z-index: 9992345678;
 	box-shadow: 0 0 50px 10px #000;
 	box-sizing: border-box;
 }
